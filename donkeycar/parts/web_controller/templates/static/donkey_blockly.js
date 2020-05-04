@@ -1,3 +1,5 @@
+
+
 Blockly.Blocks['turn_left'] = {
   init: function() {
     this.appendDummyInput()
@@ -60,6 +62,33 @@ Blockly.Blocks['go_backward'] = {
         .setCheck("Number")
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(new Blockly.FieldLabelSerializable("Throttle: (0 - 1)"), "throttle");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+
+Blockly.Blocks['hold_time'] = {
+  init: function() {
+    this.appendValueInput("hold_time")
+        .setCheck("Number")
+        .appendField(new Blockly.FieldVariable("hold_time"), "hold_time_value");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['record'] = {
+  init: function() {
+    this.appendValueInput("user_record")
+        .setCheck("Boolean")
+        .appendField("Recording");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);

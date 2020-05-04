@@ -25,6 +25,7 @@
       <field name="T_L">Turn left</field>
       <field name="angle">Angle: (0 - 1)</field>
     </block>
+    <block type="record"></block>
     <block type="turn_right">
       <field name="T_R">Turn right</field>
       <field name="angle">Angle: (0 - 1)</field>
@@ -36,6 +37,9 @@
     <block type="go_backward">
       <field name="G_B">Go_backward</field>
       <field name="throttle">Throttle: (0 - 1)</field>
+    </block>
+    <block type="hold_time">
+      <field name="hold_time_value" id="2fpW*u^ItPLx@p7mp6dY">hold_time</field>
     </block>
   </category>
   <category name="Logic">
@@ -270,13 +274,6 @@
       <field name="NAME">do something</field>
       <comment pinned="false" h="80" w="160">Describe this function...</comment>
     </block>
-    <block type="procedures_defreturn">
-      <field name="NAME">do something2</field>
-      <comment pinned="false" h="80" w="160">Describe this function...</comment>
-    </block>
-    <block type="procedures_callnoreturn">
-      <mutation name="do something"></mutation>
-    </block>
     <block type="procedures_callnoreturn">
       <mutation name="do something"></mutation>
     </block>
@@ -349,8 +346,8 @@
 	$( "#stop" ).click(function() {
 	data = JSON.stringify({ 'angle': 0,
                                 'throttle':0,
-                                'drive_mode':state.driveMode,
-                                'recording': state.recording})
+                                'drive_mode':"user",
+                                'recording': false})
 	console.log(data)
 	$.post(driveURL, data)
 	console.log("send completed")							
@@ -386,6 +383,15 @@
       state.tele.user.angle = state.tele.user.angle+p1
       postDrive()
     };
+	var carstop = function(p1){
+	state.tele.user.angle= 0
+	state.tele.user.throttle =0
+	state.driveMode = "user"
+	state.recording= false
+	p1 = p1 *1000
+	console.log(p1)
+	setTimeout(postDrive, p1);
+	}
 	
 
 
@@ -463,6 +469,35 @@ Blockly.JavaScript['go_backward'] = function(block) {
   return code;
   
 };
+Blockly.JavaScript['hold_time'] = function(block) {
+  var variable_hold_time_value = Blockly.JavaScript.variableDB_.getName(block.getFieldValue('hold_time_value'), Blockly.Variables.NAME_TYPE);
+  var value_hold_time = Blockly.JavaScript.valueToCode(block, 'hold_time', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+ // console.log(variable_hold_time_value)
+ // console.log(value_hold_time )
+  if (value_hold_time < 0){
+  alert("can not set less than 0")
+  }else{
+	carstop(value_hold_time)
+	
+  }
+ 
+  
+  var code = '\n';
+  return code;
+};
+Blockly.JavaScript['record'] = function(block) {
+  var value_user_record = Blockly.JavaScript.valueToCode(block, 'user_record', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+  if (value_user_record==""){
+  alert('can not set null booleam')
+  }else{
+  state.recording = value_user_record;
+  }
+  console.log(value_user_record)
+  var code = '\n';
+  return code;
+};
 	var workspace = Blockly.inject('blocklyDiv',
       {toolbox: document.getElementById('toolbox')});
 	Blockly.JavaScript.addReservedWords('code');
@@ -483,6 +518,7 @@ Blockly.JavaScript['go_backward'] = function(block) {
 	test = localStorage.getItem("blockly")
 	var xml = Blockly.Xml.textToDom(test);
 	Blockly.Xml.domToWorkspace(xml, workspace);
+	//console.log(xml)
 	}
 	var save = function(){
 	var xml = Blockly.Xml.workspaceToDom(workspace);
