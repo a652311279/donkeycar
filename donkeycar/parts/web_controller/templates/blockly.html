@@ -11,13 +11,14 @@
 
 
 <div class="container">
-  <h1> <button id ="run"> Run </button> </h1>
-  <h1> <button id ="stop">Emergency shutdown </button> </h1> 
+  <button id ="stop">Emergency shutdown </button>
   <button onclick="runCode()">Run Blockly</button>
   <button onclick="load()">load</button>
   <button onclick="save()">save</button>
+
 </div>
-<div id ="blocklyDiv"style ="height:480px;width:600px;"></div>
+
+<div id ="blocklyDiv"style ="height:600px;width:600px;"></div>
 
 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Donkey">
@@ -289,7 +290,8 @@
     //blockly.load()
 	driveURL = '/blockly'
 	var xml = "";
-
+	firebase.initializeApp(firebaseConfig);
+	firebase.analytics();
 	
   });
   
@@ -526,6 +528,17 @@ Blockly.JavaScript['record'] = function(block) {
 	localStorage.setItem("blockly", xml_text);
 	
 	}
+	var firebaseConfig = {
+    apiKey: "AIzaSyC_GQRs05a4TSOBMgBsutQvWnjazwlrlI4",
+    authDomain: "donkey-car.firebaseapp.com",
+    databaseURL: "https://donkey-car.firebaseio.com",
+    projectId: "donkey-car",
+    storageBucket: "donkey-car.appspot.com",
+    messagingSenderId: "548947920388",
+    appId: "1:548947920388:web:e026cd59f3dffab6d61751",
+    measurementId: "G-LH8PHPL4PS"
+  };
+ 
 	
 	
 
