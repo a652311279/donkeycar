@@ -5,20 +5,15 @@
 <script src ="/static/msg/js/en.js"> </script>
 <script src ="/static/donkey_blockly.js"> </script>
 <script src ="/static/javascript_compressed.js"> </script>
-
-
-
-
-
 <div class="container">
   <button id ="stop">Emergency shutdown </button>
   <button onclick="runCode()">Run Blockly</button>
-  <button onclick="load()">load</button>
+  <button onclick="check()">load</button>
   <button onclick="save()">save</button>
-
+  <button id="btn_l"></button>
 </div>
 
-<div id ="blocklyDiv"style ="height:600px;width:600px;"></div>
+<div id ="blocklyDiv"style ="height:500px;width:600px;"></div>
 
 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Donkey">
@@ -283,17 +278,74 @@
 
 
 <script type="text/javascript">
-
-
+	var uid = null;
+	var c_n=readCookie("__email");
+	var c_p=readCookie("__pass");
+	var url=null;
+	var popup_p;
+	var checklogin=false;
+	var email = null;
   $( document ).ready(function() {
-    console.log( "blockly document ready!" );
-    //blockly.load()
+    console.log( "blockly document ready!" ); 
 	driveURL = '/blockly'
+	url=window.location.href;
 	var xml = "";
-	firebase.initializeApp(firebaseConfig);
-	firebase.analytics();
+	init();
+	
 	
   });
+  
+  function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+  function init(){
+  firebase.initializeApp(firebaseConfig);
+  var database = firebase.database(); 
+  firebase.analytics();
+  if(c_n ==null){
+  console.log(document.cookie);
+  }else{  
+	console.log("not")}
+	window.addEventListener("message", receiveMessage, false) ;
+	function receiveMessage(event) {
+    var origin= event.origin;
+		login(event.data.e,event.data.p);
+		//console.log(n+p);
+     }
+	firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    var displayName = user.displayName;
+    email = user.email;
+    var emailVerified = user.emailVerified;
+    var photoURL = user.photoURL;
+    var isAnonymous = user.isAnonymous;
+    uid = user.uid;
+    var providerData = user.providerData;
+	//$("#login_text").addClass("d-none");
+	//$("#logout").removeClass("d-none");
+	$("#btn_l").html(email+" Logout")
+	checklogin=true;
+    // ...
+  } else {
+    // User is signed out.
+   $("#btn_l").html("Login")
+  checklogin=false;
+	console.log("out")
+	//$("#login_text").removeClass("d-none");
+  }
+});
+
+	 
+  }
+  
   
   var state = {'tele': {
                           "user": {
@@ -394,12 +446,128 @@
 	console.log(p1)
 	setTimeout(postDrive, p1);
 	}
-	
-
 
   
 </script>
 
+<script>
+
+	function runCode(){
+	window.LoopTrap = 1000;
+	Blockly.JavaScript.INFINITE_LOOP_TRAP =
+          'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+	var code = Blockly.JavaScript.workspaceToCode(workspace);
+	Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+	try{
+	eval(code);
+	}catch(e){
+	alert(e);
+	}
+	}
+	var load=function(){
+	
+	userId = uid;
+	if (userId==null){
+	var local = localStorage.getItem("blockly")
+	
+	xml = Blockly.Xml.textToDom(local);
+	Blockly.Xml.domToWorkspace(xml, workspace);
+	}else{
+	firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+	xml = (snapshot.val() && snapshot.val().xml) || 'Anonymous';
+	console.log(xml);
+	xml=Blockly.Xml.textToDom(xml);
+	Blockly.Xml.domToWorkspace(xml, workspace);
+	});
+	}
+
+	}
+	var save = function(){
+	if (uid==null){
+	xml = Blockly.Xml.workspaceToDom(workspace);
+	xml_text = Blockly.Xml.domToText(xml);
+	alert("You are not logged in \n So the blockly just save in  the browser")
+	localStorage.setItem("blockly", xml_text);
+	}else{
+	xml = Blockly.Xml.workspaceToDom(workspace);
+	//console.log(xml);
+	xml_text = Blockly.Xml.domToText(xml);
+	//console.log(xml_text);
+	var today = new Date();
+	var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+	var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+	var dateTime = date+' '+time;
+	writeUserData(uid,email,xml_text,dateTime);
+	}
+	
+	}
+	var firebaseConfig = {
+    apiKey: "AIzaSyC_GQRs05a4TSOBMgBsutQvWnjazwlrlI4",
+    authDomain: "donkey-car.firebaseapp.com",
+    databaseURL: "https://donkey-car.firebaseio.com",
+    projectId: "donkey-car",
+    storageBucket: "donkey-car.appspot.com",
+    messagingSenderId: "548947920388",
+    appId: "1:548947920388:web:e026cd59f3dffab6d61751",
+    measurementId: "G-LH8PHPL4PS"
+  };
+  function writeUserData(userId, email, xml,time) {
+  firebase.database().ref('users/' + userId).set({
+    email: email,
+    xml : xml,
+	time:time
+  });
+}
+    var popup=function(){
+//	if(checklogin ==false){
+	popup_p=window.open("https://donkey-car.web.app/login.html","_blank", "width=400,height=505");
+  }
+	document.getElementById('btn_l').addEventListener('click',function(){
+	if(checklogin==false){
+		popup();
+		
+	}else{
+	logout();
+	}
+	});
+
+var logout=function(){
+firebase.auth().signOut();
+document.cookie = "__email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+document.cookie = "__pass=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+var login=function(p1,p2){
+  firebase.auth().signInWithEmailAndPassword(p1, p2).then(function(){
+	alert("Login completed")
+	document.cookie= '__email='+p1+';max-age=3600';
+	document.cookie= '__pass='+p2+';max-age=3600';
+	popup_p.postMessage("ok",'*');
+	$("#btn_l").html(p1);
+	
+ }).catch(function(error) {
+		//console.log("login");
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // [START_EXCLUDE]
+        if (errorCode == 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+        console.log(error);
+        // [END_EXCLUDE]
+      });
+      // [END createwithemail]
+  }
+var check=function(){
+setTimeout(load, 1000);
+}
+  
+ 
+
+
+</script>
 <script>
 Blockly.JavaScript['turn_left'] = function(block) {
   var value_turn_left = Blockly.JavaScript.valueToCode(block, 'Angle', Blockly.JavaScript.ORDER_ATOMIC);
@@ -504,44 +672,7 @@ Blockly.JavaScript['record'] = function(block) {
       {toolbox: document.getElementById('toolbox')});
 	Blockly.JavaScript.addReservedWords('code');
 	var code = Blockly.JavaScript.workspaceToCode(workspace);  
-	function runCode(){
-	window.LoopTrap = 1000;
-	Blockly.JavaScript.INFINITE_LOOP_TRAP =
-          'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
-	var code = Blockly.JavaScript.workspaceToCode(workspace);
-	Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
-	try{
-	eval(code);
-	}catch(e){
-	alert(e);
-	}
-	}
-	var load=function(){
-	test = localStorage.getItem("blockly")
-	var xml = Blockly.Xml.textToDom(test);
-	Blockly.Xml.domToWorkspace(xml, workspace);
-	//console.log(xml)
-	}
-	var save = function(){
-	var xml = Blockly.Xml.workspaceToDom(workspace);
-	var xml_text = Blockly.Xml.domToText(xml);
-	localStorage.setItem("blockly", xml_text);
-	
-	}
-	var firebaseConfig = {
-    apiKey: "AIzaSyC_GQRs05a4TSOBMgBsutQvWnjazwlrlI4",
-    authDomain: "donkey-car.firebaseapp.com",
-    databaseURL: "https://donkey-car.firebaseio.com",
-    projectId: "donkey-car",
-    storageBucket: "donkey-car.appspot.com",
-    messagingSenderId: "548947920388",
-    appId: "1:548947920388:web:e026cd59f3dffab6d61751",
-    measurementId: "G-LH8PHPL4PS"
-  };
- 
-	
-	
 
-</script>
+</script
 
 {% end %}
