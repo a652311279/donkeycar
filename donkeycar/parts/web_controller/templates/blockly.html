@@ -13,7 +13,7 @@
   <button id="btn_l"></button>
 </div>
 
-<div id ="blocklyDiv"style ="height:500px;width:600px;"></div>
+<div id ="blocklyDiv"style ="height:75vh;width:100%;"></div>
 
 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Donkey">
@@ -669,7 +669,16 @@ Blockly.JavaScript['record'] = function(block) {
   return code;
 };
 	var workspace = Blockly.inject('blocklyDiv',
-      {toolbox: document.getElementById('toolbox')});
+      {toolbox: document.getElementById('toolbox'),
+	  zoom:
+         {controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2},
+     trashcan: true
+	  });
 	Blockly.JavaScript.addReservedWords('code');
 	var code = Blockly.JavaScript.workspaceToCode(workspace);  
 
