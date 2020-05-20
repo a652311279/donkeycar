@@ -5,6 +5,8 @@
 <script src ="/static/msg/js/en.js"> </script>
 <script src ="/static/donkey_blockly.js"> </script>
 <script src ="/static/javascript_compressed.js"> </script>
+<script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.4/mobile-detect.min.js"></script>
+
 <div class="container">
   <button id ="stop">Emergency shutdown </button>
   <button onclick="runCode()">Run Blockly</button>
@@ -285,12 +287,20 @@
 	var popup_p;
 	var checklogin=false;
 	var email = null;
+	var md = new MobileDetect(window.navigator.userAgent);
+	if(md.os()!=null){
+	$('#navbar_a').hide();
+	console.log(md.os());
+	}
   $( document ).ready(function() {
     console.log( "blockly document ready!" ); 
 	driveURL = '/blockly'
 	url=window.location.href;
 	var xml = "";
 	init();
+	
+
+
 	
 	
   });
@@ -319,6 +329,7 @@
 		login(event.data.e,event.data.p);
 		//console.log(n+p);
      }
+	 
 	firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     // User is signed in.
@@ -337,9 +348,13 @@
   } else {
     // User is signed out.
    $("#btn_l").html("Login")
-  checklogin=false;
+	checklogin=false;
 	console.log("out")
 	//$("#login_text").removeClass("d-none");
+	
+	if(c_n!=null){
+	login(c_n,c_p);
+	}
   }
 });
 
@@ -541,7 +556,7 @@ var login=function(p1,p2){
 	alert("Login completed")
 	document.cookie= '__email='+p1+';max-age=3600';
 	document.cookie= '__pass='+p2+';max-age=3600';
-	popup_p.postMessage("ok",'*');
+	//popup_p.postMessage("ok",'*');
 	$("#btn_l").html(p1);
 	
  }).catch(function(error) {
