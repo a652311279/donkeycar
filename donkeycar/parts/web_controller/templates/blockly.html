@@ -290,7 +290,8 @@
 	var md = new MobileDetect(window.navigator.userAgent);
 	if(md.os()!=null){
 	$('#navbar_a').hide();
-	console.log(md.os());
+	$('.navbar-header').hide();
+	//console.log(md.os());
 	}
   $( document ).ready(function() {
     console.log( "blockly document ready!" ); 
