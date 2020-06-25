@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="/static/blockly_compressed.js"></script>
+<script src="/static/blocks_compressed.js"></script>
+<script src ="/static/msg/js/en.js"> </script>
+<script src ="/static/donkey_blockly.js"> </script>
+<script src ="/static/javascript_compressed.js"> </script>
+<script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.4/mobile-detect.min.js"></script>
+
+<style>
+
+
+</style>
+
+<ul class="pagination">
+    <li><a href="#">&laquo;</a></li>
+    <li class="active"><a href="#">1</a></li>
+    <li ><a href="test2">2</a></li>
+    <li><a href="test3">3</a></li>
+    <li><a href="#">&raquo;</a></li>
+</ul>
+<div class="container">
+ <div class="" style="float:left; ">
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1",width="400px",height="400px">
+   <circle cx="100" cy="50" r="40" stroke="black" stroke-width="2" fill="red" />
+  
+</svg>
+  <div class="col text-center">
+   <button onclick="runCode()" class="btn btn-danger">Run Blockly</button>
+   <button onclick="stop()" class="btn btn-danger">Stop Blockly</button>
+  </div> 
+
+ </div>
+  <div id ="blocklyDiv" style ="height:75vh;width:100%;" ></div>
+</div>
+
+
+<xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+  <block type="go_forward">
+    <field name="G_F">Go forward</field>
+    <field name="throttle">Throttle: (0 - 1)</field>
+  </block>
+  <block type="go_backward">
+    <field name="G_B">Go_backward</field>
+    <field name="throttle">Throttle: (0 - 1)</field>
+  </block>
+  <block type="math_number">
+    <field name="NUM">0</field>
+  </block>
+</xml>
+<script>
+  $( document ).ready(function() {
+    console.log( "blockly document ready!" ); 
+	driveURL = '/test'
+	//url=window.location.href;
+	var xml = "";
+	///init();
+	
+
+
+	
+	
+  });
+  var stop = function(){
+		state.tele.user.throttle=0
+		state.tele.user.angle=0
+		var data = JSON.stringify({ 'angle': 0,
+                                'throttle':0,
+                                'drive_mode':state.driveMode,
+                                'recording': state.recording})
+        console.log(data)
+        $.post(driveURL, data)
+  
+  }
+    var state = {'tele': {
+                          "user": {
+                                  'angle': 0,
+                                  'throttle': 0,
+                                  },
+                          "pilot": {
+                                  'angle': 0,
+                                  'throttle': 0,
+                                  }
+                          },
+                  'brakeOn': true,
+                  'recording': false,
+                  'driveMode': "user",
+                  'pilot': 'None',
+                  'session': 'None',
+                  'lag': 0,
+                  'controlMode': 'joystick',
+                  'maxThrottle' : 1,
+                  'throttleMode' : 'user',
+                  }
+  	 var postDrive = function() {
+
+        //Send angle and throttle values
+        data = JSON.stringify({ 'angle': state.tele.user.angle,
+                                'throttle':state.tele.user.throttle,
+                                'drive_mode':state.driveMode,
+                                'recording': state.recording})
+        console.log(data)
+        $.post(driveURL, data)
+       
+    };
+  
+  	var throttleUp = function(p1){
+	
+     //state.tele.user.throttle = state.tele.user.throttle + p1
+	 state.tele.user.throttle =  p1
+	 //console.log(typeof p1)
+      postDrive()
+    };
+	var throttleDown = function(p1){
+      state.tele.user.throttle =state.tele.user.throttle- p1
+	  //state.tele.user.throttle = p1
+      postDrive()
+    };
+	 var angleLeft = function(p1){
+      //state.tele.user.angle = state.tele.user.angle-p1
+	  state.tele.user.angle =-p1
+      postDrive()
+    };
+	 var angleRight = function(p1){
+      //state.tele.user.angle = state.tele.user.angle+p1
+	  state.tele.user.angle = +p1
+      postDrive()
+    };
+	var carstop = function(p1){
+	state.tele.user.angle= 0
+	state.tele.user.throttle =0
+	state.driveMode = "user"
+	state.recording= false
+	p1 = p1 *1000
+	console.log(p1)
+	setTimeout(postDrive, p1);
+	}
+	
+  	function runCode(){
+	window.LoopTrap = 1000;
+	Blockly.JavaScript.INFINITE_LOOP_TRAP =
+          'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
+	var code = Blockly.JavaScript.workspaceToCode(workspace);
+	Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
+	try{
+	eval(code);
+	}catch(e){
+	alert(e);
+	}
+	}
+
+
+var workspace = Blockly.inject('blocklyDiv',
+      {toolbox: document.getElementById('toolbox'),
+	  zoom:
+         {controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2},
+     trashcan: true
+	  });
+	Blockly.JavaScript.addReservedWords('code');
+	var code = Blockly.JavaScript.workspaceToCode(workspace);  
+
+</script>
+
+<script>
+Blockly.JavaScript['turn_left'] = function(block) {
+  var value_turn_left = Blockly.JavaScript.valueToCode(block, 'Angle', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+ if(value_turn_left>1){
+  alert("cant hight than 1")
+  }else if (value_turn_left == 0){
+  alert("can not set zero data")
+  }else{
+  value_turn_left=Number(value_turn_left)
+  angleLeft(value_turn_left)
+
+  }
+  var code = '\n';
+  return code;
+  
+};
+
+Blockly.JavaScript['turn_right'] = function(block) {
+  var value_turn_right = Blockly.JavaScript.valueToCode(block, 'Angle', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+  if (value_turn_right>1){
+  alert("can't ")
+  }else if (value_turn_right == 0){
+  alert("can not set zero data")
+  }else{
+  value_turn_right=Number(value_turn_right)
+  angleRight(value_turn_right)
+
+  }
+  var code = '\n';
+  return code;
+};
+
+Blockly.JavaScript['go_forward'] = function(block) {
+  var value_go_forward = Blockly.JavaScript.valueToCode(block, 'Throttle', Blockly.JavaScript.ORDER_ATOMIC);
+  value_go_backward=Number(value_go_forward)
+  // TODO: Assemble JavaScript into code variable.
+  if(value_go_forward>1){
+  alert("cant hight than 1")
+  }else if (value_go_forward == 0){
+  alert("can not set zero data")
+  }else{
+  value_go_forward=Number(value_go_forward)
+  throttleUp(value_go_forward)
+  
+  
+
+  }
+  //console.log(value_go_forward)
+  var code = '\n';
+  return code;
+
+};
+
+Blockly.JavaScript['go_backward'] = function(block) {
+  var value_go_backward= Blockly.JavaScript.valueToCode(block, 'Throttle', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+   if (value_go_backward>1){
+	alert("can't ")
+  }else if (value_go_backward == 0){
+	alert("can not set zero data")
+  }else{
+	value_go_backward=Number(value_go_backward)
+	throttleDown(value_go_backward)
+
+  }
+  var code = '\n';
+  return code;
+  
+};
+Blockly.JavaScript['hold_time'] = function(block) {
+  var variable_hold_time_value = Blockly.JavaScript.variableDB_.getName(block.getFieldValue('hold_time_value'), Blockly.Variables.NAME_TYPE);
+  var value_hold_time = Blockly.JavaScript.valueToCode(block, 'hold_time', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+ // console.log(variable_hold_time_value)
+ // console.log(value_hold_time )
+  if (value_hold_time < 0){
+  alert("can not set less than 0")
+  }else{
+	carstop(value_hold_time)
+	
+  }
+ 
+  
+  var code = '\n';
+  return code;
+};
+Blockly.JavaScript['record'] = function(block) {
+  var value_user_record = Blockly.JavaScript.valueToCode(block, 'user_record', Blockly.JavaScript.ORDER_ATOMIC);
+  // TODO: Assemble JavaScript into code variable.
+  if (value_user_record==""){
+  alert('can not set null booleam')
+  }else{
+  state.recording = value_user_record;
+  }
+  console.log(value_user_record)
+  var code = '\n';
+  return code;
+};
+</script>
+
+{% end %}
