@@ -120,9 +120,11 @@ class LocalWebController(tornado.web.Application):
             (r"/drive", DriveAPI),
             (r"/video", VideoAPI),
             (r"/static/(.*)", StaticFileHandler,
-            
              {"path": self.static_file_path}),
              (r"/blockly",blocklyAPI),
+			 (r"/test",testAPI),
+			 (r"/test2",test2API),
+			 (r"/test3",test3API),
         ]
 
         settings = {'debug': True}
@@ -178,7 +180,40 @@ class blocklyAPI(RequestHandler):
         self.application.mode = data['drive_mode']
         self.application.recording = data['recording']
        
+class testAPI(RequestHandler):
+    def get(self):
+        data={}
+        self.render("templates/test.html", **data)
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        
+        self.application.angle = data['angle']
+        self.application.throttle = data['throttle']
+        self.application.mode = data['drive_mode']
+        self.application.recording = data['recording']
 
+class test2API(RequestHandler):
+    def get(self):
+        data={}
+        self.render("templates/test2.html", **data)
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        
+        self.application.angle = data['angle']
+        self.application.throttle = data['throttle']
+        self.application.mode = data['drive_mode']
+        self.application.recording = data['recording']
+class test3API(RequestHandler):
+    def get(self):
+        data={}
+        self.render("templates/test3.html", **data)
+    def post(self):
+        data = tornado.escape.json_decode(self.request.body)
+        
+        self.application.angle = data['angle']
+        self.application.throttle = data['throttle']
+        self.application.mode = data['drive_mode']
+        self.application.recording = data['recording']		
 
 class VideoAPI(RequestHandler):
     '''

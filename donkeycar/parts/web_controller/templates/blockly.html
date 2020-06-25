@@ -15,7 +15,7 @@
   <button id="btn_l"></button>
 </div>
 
-<div id ="blocklyDiv"style ="height:75vh;width:100%;"></div>
+<div id ="blocklyDiv" style ="height:75vh;width:100%;" ></div>
 
 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Donkey">
@@ -23,6 +23,7 @@
       <field name="T_L">Turn left</field>
       <field name="angle">Angle: (0 - 1)</field>
     </block>
+	
     <block type="record"></block>
     <block type="turn_right">
       <field name="T_R">Turn right</field>
@@ -39,6 +40,7 @@
     <block type="hold_time">
       <field name="hold_time_value" id="2fpW*u^ItPLx@p7mp6dY">hold_time</field>
     </block>
+
   </category>
   <category name="Logic">
     <block type="controls_if"></block>
@@ -54,6 +56,7 @@
     <block type="logic_boolean">
       <field name="BOOL">TRUE</field>
     </block>
+	
   </category>
   <category name="Loops">
     <block type="controls_forEach" inline="false">
@@ -422,6 +425,16 @@
 	$.post(driveURL, data)
 	console.log("send completed")							
 	});
+	var stop =function(){
+		data = JSON.stringify({ 'angle': 0,
+                                'throttle':0,
+                                'drive_mode':state.driveMode,
+                                'recording': state.recording})
+        console.log(data)
+        $.post(driveURL, data)
+		
+       
+    };
 	
 	 var postDrive = function() {
 
@@ -432,20 +445,28 @@
                                 'recording': state.recording})
         console.log(data)
         $.post(driveURL, data)
+		
        
     };
 	
-	var throttleUp = function(p1){
 	
-     state.tele.user.throttle = state.tele.user.throttle + p1
+async function throttleUp  (p1){
+
+	//console.log(p1);
+     state.tele.user.throttle = + p1
 	 //console.log(typeof p1)
       postDrive()
-    };
-	var throttleDown = function(p1){
+	  //setTimeout(stop, 2000)
+    }
+	
+
+ var throttleDown = function(p1){
+	 //throttleUp();
       state.tele.user.throttle =state.tele.user.throttle- p1
       postDrive()
     };
-	 var angleLeft = function(p1){
+ var angleLeft = function(p1){
+	 
       state.tele.user.angle = state.tele.user.angle-p1
       postDrive()
     };
@@ -454,13 +475,16 @@
       postDrive()
     };
 	var carstop = function(p1){
-	state.tele.user.angle= 0
+	
+    state.tele.user.angle= 0
 	state.tele.user.throttle =0
 	state.driveMode = "user"
 	state.recording= false
 	p1 = p1 *1000
 	console.log(p1)
-	setTimeout(postDrive, p1);
+	setTimeout(postDrive, p1);   
+       
+	
 	}
 
   
@@ -592,12 +616,14 @@ Blockly.JavaScript['turn_left'] = function(block) {
   alert("cant hight than 1")
   }else if (value_turn_left == 0){
   alert("can not set zero data")
+  var code = '\n';
   }else{
   value_turn_left=Number(value_turn_left)
-  angleLeft(value_turn_left)
-
+  //angleLeft(value_turn_left)
+ // var code ="await new Promise( resolve => setTimeout(resolve, 60000))\n;";
+	var code = 'angleLeft('+value_turn_left+');\n';
   }
-  var code = '\n';
+ 
   return code;
   
 };
@@ -624,17 +650,16 @@ Blockly.JavaScript['go_forward'] = function(block) {
   // TODO: Assemble JavaScript into code variable.
   if(value_go_forward>1){
   alert("cant hight than 1")
-  }else if (value_go_forward == 0){
-  alert("can not set zero data")
+ }else if (value_go_forward == 0){
+	alert("can not set zero data");
+	var code ='\n'
   }else{
   value_go_forward=Number(value_go_forward)
-  throttleUp(value_go_forward)
-  
-  
-
+  var code = 'throttleUp('+value_go_forward+');\n';
   }
-  //console.log(value_go_forward)
-  var code = '\n';
+  //console.log(value_go_forward);
+  
+  //console.log(code);
   return code;
 
 };
@@ -652,7 +677,7 @@ Blockly.JavaScript['go_backward'] = function(block) {
 
   }
   var code = '\n';
-  return code;
+  return [code, Blockly.JavaScript.ORDER_NONE];
   
 };
 Blockly.JavaScript['hold_time'] = function(block) {
@@ -663,13 +688,15 @@ Blockly.JavaScript['hold_time'] = function(block) {
  // console.log(value_hold_time )
   if (value_hold_time < 0){
   alert("can not set less than 0")
+  var code = '\n';
   }else{
-	carstop(value_hold_time)
-	
+	//carstop(value_hold_time)
+	//var code = 'carstop('+value_hold_time+');\n';
+	var code = "await new Promise( resolve => setTimeout(resolve, 60000))\n;";
   }
  
   
-  var code = '\n';
+  
   return code;
 };
 Blockly.JavaScript['record'] = function(block) {
@@ -684,6 +711,7 @@ Blockly.JavaScript['record'] = function(block) {
   var code = '\n';
   return code;
 };
+
 	var workspace = Blockly.inject('blocklyDiv',
       {toolbox: document.getElementById('toolbox'),
 	  zoom:
@@ -698,6 +726,6 @@ Blockly.JavaScript['record'] = function(block) {
 	Blockly.JavaScript.addReservedWords('code');
 	var code = Blockly.JavaScript.workspaceToCode(workspace);  
 
-</script
+</script>
 
 {% end %}
