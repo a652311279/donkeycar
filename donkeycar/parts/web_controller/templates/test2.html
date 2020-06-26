@@ -40,6 +40,9 @@
     <block type="wait_block">
       <field name="wait">0</field>
     </block>
+	  <block type="stop">
+    <field name="NAME">stop</field>
+  </block>
     <block type="turn_left">
       <field name="T_L">Turn left</field>
       <field name="angle">Angle: (0 - 1)</field>
@@ -145,14 +148,15 @@
       state.tele.user.angle = state.tele.user.angle+p1
       postDrive()
     };
-	var carstop = function(p1){
+	var carstop = function(){
 	state.tele.user.angle= 0;
 	state.tele.user.throttle =0;
 	state.driveMode = "user";
 	state.recording= false;
-	p1 = p1 *1000;
-	console.log(p1);
-	setTimeout(postDrive, p1);
+	//p1 = p1 *1000;
+	//console.log(p1);
+	//setTimeout(postDrive, p1);
+	postDrive();
 	}
 function runCode(){
 	window.LoopTrap = 1000;
@@ -251,7 +255,7 @@ Blockly.JavaScript['go_backward'] = function(block) {
 	alert("can not set zero data")
   }else{
 	value_go_backward=Number(value_go_backward)
-	throttleDown(value_go_backward)
+	//throttleDown(value_go_backward)
 	var code = 'throttleDown('+value_go_backward+ ');\n';
   }
   
@@ -269,7 +273,8 @@ Blockly.JavaScript['hold_time'] = function(block) {
    var code = '\n';
   }else{
 	// var code = ' carstop('+value_hold_time+');\n';
-	   var code = ' carstop('+value_hold_time+');\n';
+	 //  var code = ' carstop('+value_hold_time+');\n';
+	 var code = '\n';
   }
  
   
@@ -293,6 +298,11 @@ Blockly.JavaScript['wait_block'] = function(block) {
   var number_wait = block.getFieldValue('wait');
   // TODO: Assemble JavaScript into code variable.
   var code =  'await delay(' + number_wait + ');\n';
+  return code;
+};
+Blockly.JavaScript['stop'] = function(block) {
+  // TODO: Assemble JavaScript into code variable.
+  var code = ' carstop();\n';
   return code;
 };
 </script>
