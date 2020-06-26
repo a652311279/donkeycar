@@ -37,8 +37,8 @@
 
 <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
   <category name="Car">
-    <block type="hold_time" inline="false">
-      <field name="hold_time_value" id="K443Z?w.W4ZudMnOFIf-">hold_time</field>
+    <block type="wait_block">
+      <field name="wait">0</field>
     </block>
     <block type="turn_left">
       <field name="T_L">Turn left</field>
@@ -78,6 +78,14 @@
 	
 	
   });
+  
+    function delay(t) {
+    return new Promise(function (resolve, reject) {
+      setTimeout(function () {
+        resolve();
+      }, 1000 * t);
+    });
+  }
     var stop = function(){
 		var data = JSON.stringify({ 'angle': 0,
                                 'throttle':0,
@@ -138,22 +146,24 @@
       postDrive()
     };
 	var carstop = function(p1){
-	state.tele.user.angle= 0
-	state.tele.user.throttle =0
-	state.driveMode = "user"
-	state.recording= false
-	p1 = p1 *1000
-	console.log(p1)
+	state.tele.user.angle= 0;
+	state.tele.user.throttle =0;
+	state.driveMode = "user";
+	state.recording= false;
+	p1 = p1 *1000;
+	console.log(p1);
 	setTimeout(postDrive, p1);
 	}
-  	function runCode(){
+function runCode(){
 	window.LoopTrap = 1000;
 	Blockly.JavaScript.INFINITE_LOOP_TRAP =
           'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
 	var code = Blockly.JavaScript.workspaceToCode(workspace);
+	code = '(async function () {\n\n' + code + '\n}());';
 	Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
 	try{
-	eval(code);
+	 eval(code);
+	 console.log(code);
 	}catch(e){
 	alert(e);
 	}
@@ -173,7 +183,8 @@ var workspace = Blockly.inject('blocklyDiv',
 	  });
 	Blockly.JavaScript.addReservedWords('code');
 	var code = Blockly.JavaScript.workspaceToCode(workspace);  
-
+	
+	
 </script>
 
 <script>
@@ -186,10 +197,10 @@ Blockly.JavaScript['turn_left'] = function(block) {
   alert("can not set zero data")
   }else{
   value_turn_left=Number(value_turn_left)
-  angleLeft(value_turn_left)
-
+  //angleLeft(value_turn_left)
+  var code = 'angleLeft('+value_turn_left+ ');\n';
   }
-  var code = '\n';
+  
   return code;
   
 };
@@ -203,10 +214,10 @@ Blockly.JavaScript['turn_right'] = function(block) {
   alert("can not set zero data")
   }else{
   value_turn_right=Number(value_turn_right)
-  angleRight(value_turn_right)
-
+  //angleRight(value_turn_right)
+	var code = 'angleRight('+value_turn_right+ ');\n';
   }
-  var code = '\n';
+  
   return code;
 };
 
@@ -220,13 +231,13 @@ Blockly.JavaScript['go_forward'] = function(block) {
   alert("can not set zero data")
   }else{
   value_go_forward=Number(value_go_forward)
-  throttleUp(value_go_forward)
   
+  var code = 'throttleUp('+value_go_forward+ ');\n';
   
 
   }
   //console.log(value_go_forward)
-  var code = '\n';
+  
   return code;
 
 };
@@ -241,9 +252,9 @@ Blockly.JavaScript['go_backward'] = function(block) {
   }else{
 	value_go_backward=Number(value_go_backward)
 	throttleDown(value_go_backward)
-
+	var code = 'throttleDown('+value_go_backward+ ');\n';
   }
-  var code = '\n';
+  
   return code;
   
 };
@@ -255,14 +266,15 @@ Blockly.JavaScript['hold_time'] = function(block) {
  // console.log(value_hold_time )
   if (value_hold_time < 0){
   alert("can not set less than 0")
+   var code = '\n';
   }else{
-	carstop(value_hold_time)
-	
+	// var code = ' carstop('+value_hold_time+');\n';
+	   var code = ' carstop('+value_hold_time+');\n';
   }
  
   
-  var code = '\n';
-  return code;
+  return code
+  //return  "await new Promise( resolve => setTimeout(resolve, 60000))\n;";;
 };
 Blockly.JavaScript['record'] = function(block) {
   var value_user_record = Blockly.JavaScript.valueToCode(block, 'user_record', Blockly.JavaScript.ORDER_ATOMIC);
@@ -274,6 +286,13 @@ Blockly.JavaScript['record'] = function(block) {
   }
   console.log(value_user_record)
   var code = '\n';
+  return code;
+};
+
+Blockly.JavaScript['wait_block'] = function(block) {
+  var number_wait = block.getFieldValue('wait');
+  // TODO: Assemble JavaScript into code variable.
+  var code =  'await delay(' + number_wait + ');\n';
   return code;
 };
 </script>

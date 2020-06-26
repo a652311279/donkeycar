@@ -97,6 +97,32 @@ Blockly.Blocks['record'] = {
   }
 };
 
+Blockly.Blocks['delay'] = {
+  init: function () {
+    this.appendValueInput("secs_")
+      .appendField(Blockly.Msg.WEBDUINO_DELAY);
+    this.appendDummyInput()
+      .appendField(Blockly.Msg.WEBDUINO_DELAY_SECONDS);
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setColour(180);
+    this.setTooltip('');
+    this.setHelpUrl(mainUrl + 'basic/index.html' + utmUrl);
+  }
+};
+Blockly.Blocks['wait_block'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("delay")
+        .appendField(new Blockly.FieldNumber(0), "wait")
+        .appendField("in secs");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
 
 
 

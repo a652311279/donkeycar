@@ -450,31 +450,31 @@
     };
 	
 	
-async function throttleUp  (p1){
+ async	function throttleUp  (p1){
 
 	//console.log(p1);
      state.tele.user.throttle = + p1
 	 //console.log(typeof p1)
-      postDrive()
+      await postDrive()
 	  //setTimeout(stop, 2000)
     }
 	
 
- var throttleDown = function(p1){
+async function throttleDown  (p1){
 	 //throttleUp();
       state.tele.user.throttle =state.tele.user.throttle- p1
-      postDrive()
+     await postDrive()
     };
  var angleLeft = function(p1){
 	 
       state.tele.user.angle = state.tele.user.angle-p1
       postDrive()
     };
-	 var angleRight = function(p1){
+async function angleRight (p1){
       state.tele.user.angle = state.tele.user.angle+p1
-      postDrive()
+     await  postDrive()
     };
-	var carstop = function(p1){
+	async  function carstop  (p1){
 	
     state.tele.user.angle= 0
 	state.tele.user.throttle =0
@@ -482,9 +482,10 @@ async function throttleUp  (p1){
 	state.recording= false
 	p1 = p1 *1000
 	console.log(p1)
-	setTimeout(postDrive, p1);   
-       
-	
+	//setTimeout(postDrive, p1);   
+	//return await setTimeout(postDrive, p1);
+	return new Promise( resolve => setTimeout(resolve, p1));	
+	//return new Promise( resolve => setTimeout(resolve, 60000));
 	}
 
   
@@ -492,14 +493,14 @@ async function throttleUp  (p1){
 
 <script>
 
-	function runCode(){
+	async function runCode(){
 	window.LoopTrap = 1000;
 	Blockly.JavaScript.INFINITE_LOOP_TRAP =
           'if (--window.LoopTrap == 0) throw "Infinite loop.";\n';
 	var code = Blockly.JavaScript.workspaceToCode(workspace);
 	Blockly.JavaScript.INFINITE_LOOP_TRAP = null;
 	try{
-	eval(code);
+	 await eval(code);
 	}catch(e){
 	alert(e);
 	}
@@ -620,8 +621,9 @@ Blockly.JavaScript['turn_left'] = function(block) {
   }else{
   value_turn_left=Number(value_turn_left)
   //angleLeft(value_turn_left)
- // var code ="await new Promise( resolve => setTimeout(resolve, 60000))\n;";
+  //var code ="await new Promise( resolve => setTimeout(resolve, 60000))\n;";
 	var code = 'angleLeft('+value_turn_left+');\n';
+	//var code='\n';
   }
  
   return code;
@@ -655,7 +657,7 @@ Blockly.JavaScript['go_forward'] = function(block) {
 	var code ='\n'
   }else{
   value_go_forward=Number(value_go_forward)
-  var code = 'throttleUp('+value_go_forward+');\n';
+  var code = ' throttleUp('+value_go_forward+');\n';
   }
   //console.log(value_go_forward);
   
@@ -691,9 +693,10 @@ Blockly.JavaScript['hold_time'] = function(block) {
   var code = '\n';
   }else{
 	//carstop(value_hold_time)
-	//var code = 'carstop('+value_hold_time+');\n';
-	var code = "await new Promise( resolve => setTimeout(resolve, 60000))\n;";
+	//var code = '  carstop('+value_hold_time+');\n';
+	var code = " new Promise( resolve => setTimeout(resolve, 60000))\n;";
   }
+  
  
   
   
